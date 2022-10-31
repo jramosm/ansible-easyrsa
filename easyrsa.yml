@@ -1,0 +1,35 @@
+---
+- hosts: "{{server}}" 
+  become: yes
+  vars:
+    user: "{{ ansible_env.USER }}"
+    openvpn_dir: "/etc/openvpn"
+  tasks:
+    - name: set easy-rsa out dir
+      set_fact:
+        easyrsa_dest: "{{ openvpn_dir }}/easy-rsa"
+    - name: build client certificate
+      ignore_errors: yes
+      expect:
+        command: "./easyrsa build-client-full {{username}}"
+        responses:
+          'Enter PEM pass phrase:$': "{{password}}"
+          'Verifying - Enter PEM pass phrase:$': "{{password}}" 
+          'Enter pass phrase for .*?:$': "{{CA_password}}"
+        chdir: "{{easyrsa_dest}}"
+    - name: Generating OVPN files
+      command: "./genkey.sh"
+      args:
+        chdir: "{{ openvpn_dir }}"
+    - name: List of OVPN files from remote to local
+      find: 
+        paths : "{{ openvpn_dir }}/ovpn-client"
+        recurse : no 
+        patterns : "{{username}}*.ovpn"
+      register : files_to_copy
+    - name: Fetch OVPN files
+      fetch: 
+        src : "{{ item.path }}"
+        dest : "{{ playbook_dir }}/{{ inventory_hostname }}/" 
+        flat : yes
+      with_items: "{{ files_to_copy.files }}"
