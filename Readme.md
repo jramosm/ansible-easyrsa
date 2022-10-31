@@ -1,1 +1,1 @@
-#Using ANSIBLe for create EasyRSA certificates for OpenVPN Server
+#Using ANSIBLE for create EasyRSA certificates for OpenVPN Server
