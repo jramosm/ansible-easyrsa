@@ -1,5 +1,5 @@
 ---
-- hosts: "{{server}}" 
+- hosts: "{{ server }}" 
   become: yes
   vars:
     user: "{{ ansible_env.USER }}"
@@ -21,11 +21,11 @@
       command: "./genkey.sh"
       args:
         chdir: "{{ openvpn_dir }}"
-    - name: List of OVPN files from remote to local
+    - name: List of OVPN files from remote to local 
       find: 
         paths : "{{ openvpn_dir }}/ovpn-client"
         recurse : no 
-        patterns : "{{username}}*.ovpn"
+        patterns : "{{ username }}*.ovpn"
       register : files_to_copy
     - name: Fetch OVPN files
       fetch: 
